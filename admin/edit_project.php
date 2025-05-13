@@ -15,7 +15,6 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 }
 
 $project_id = (int)$_GET['id'];
-$success = $error = '';
 
 // Get project data
 try {
@@ -36,7 +35,9 @@ try {
     // Get all technologies
     $technologies = $pdo->query("SELECT * FROM technologies ORDER BY name")->fetchAll();
 } catch (PDOException $e) {
-    $error = "Error fetching project data: " . $e->getMessage();
+    $_SESSION['error'] = "Error fetching project data: " . $e->getMessage();
+    header('Location: index.php');
+    exit;
 }
 
 // Handle form submission
@@ -76,19 +77,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $pdo->commit();
-        $success = "Project updated successfully!";
-        
-        // Refresh project data
-        $stmt = $pdo->prepare("SELECT * FROM projects WHERE id = ?");
-        $stmt->execute([$project_id]);
-        $project = $stmt->fetch();
-
-        $stmt = $pdo->prepare("SELECT technology_id FROM project_technologies WHERE project_id = ?");
-        $stmt->execute([$project_id]);
-        $project_technologies = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        $_SESSION['success'] = "Project updated successfully!";
+        header('Location: index.php');
+        exit;
     } catch (PDOException $e) {
         $pdo->rollBack();
-        $error = "Error updating project: " . $e->getMessage();
+        $_SESSION['error'] = "Error updating project: " . $e->getMessage();
+        header('Location: index.php');
+        exit;
     }
 }
 ?>
@@ -120,18 +116,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="flex-1 p-8">
             <div class="max-w-2xl mx-auto">
                 <h1 class="text-3xl font-bold mb-6">Edit Project</h1>
-
-                <?php if ($success): ?>
-                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                        <?php echo $success; ?>
-                    </div>
-                <?php endif; ?>
-
-                <?php if ($error): ?>
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                        <?php echo $error; ?>
-                    </div>
-                <?php endif; ?>
 
                 <form method="POST" class="bg-white rounded-lg shadow-md p-6">
                     <div class="space-y-4">

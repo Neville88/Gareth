@@ -1,17 +1,3 @@
--- Create the database
-CREATE DATABASE IF NOT EXISTS gareth_portfolio;
-USE gareth_portfolio;
-
--- Users table for authentication
-CREATE TABLE IF NOT EXISTS users (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
 -- Projects table
 CREATE TABLE IF NOT EXISTS projects (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -21,6 +7,16 @@ CREATE TABLE IF NOT EXISTS projects (
     live_url VARCHAR(255),
     github_url VARCHAR(255),
     featured BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Users table for authentication
+CREATE TABLE IF NOT EXISTS users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -59,7 +55,7 @@ CREATE TABLE IF NOT EXISTS skills (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL,
     category ENUM('frontend', 'backend', 'database', 'other') NOT NULL,
-    proficiency INT CHECK (proficiency BETWEEN 1 AND 100),
+    proficiency INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -79,29 +75,28 @@ CREATE TABLE IF NOT EXISTS experience (
 
 -- Education table
 CREATE TABLE IF NOT EXISTS education (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    degree VARCHAR(100) NOT NULL,
-    institution VARCHAR(100) NOT NULL,
-    field_of_study VARCHAR(100),
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    degree VARCHAR(255) NOT NULL,
+    institution VARCHAR(255) NOT NULL,
+    location VARCHAR(255) NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE,
     description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Insert some sample data for technologies
-INSERT INTO technologies (name) VALUES
+INSERT IGNORE INTO technologies (name) VALUES
 ('HTML'), ('CSS'), ('JavaScript'), ('PHP'), ('MySQL'),
 ('React'), ('Node.js'), ('Python'), ('Django'), ('Laravel'),
 ('Tailwind CSS'), ('Bootstrap'), ('Git'), ('Docker'), ('AWS');
 
 -- Insert sample project
-INSERT INTO projects (title, description, image_url, live_url, github_url, featured) VALUES
+INSERT IGNORE INTO projects (title, description, image_url, live_url, github_url, featured) VALUES
 ('Portfolio Website', 'A modern portfolio website built with PHP and Tailwind CSS', '/images/portfolio.jpg', 'https://gareth.com', 'https://github.com/gareth/portfolio', TRUE);
 
 -- Insert sample skills
-INSERT INTO skills (name, category, proficiency) VALUES
+INSERT IGNORE INTO skills (name, category, proficiency) VALUES
 ('HTML/CSS', 'frontend', 95),
 ('JavaScript', 'frontend', 90),
 ('PHP', 'backend', 85),
@@ -109,9 +104,10 @@ INSERT INTO skills (name, category, proficiency) VALUES
 ('React', 'frontend', 85);
 
 -- Insert sample experience
-INSERT INTO experience (title, company, location, start_date, end_date, description) VALUES
+INSERT IGNORE INTO experience (title, company, location, start_date, end_date, description) VALUES
 ('Senior Web Developer', 'Tech Company', 'Kampala, Uganda', '2020-01-01', NULL, 'Leading web development projects and mentoring junior developers');
 
 -- Insert sample education
-INSERT INTO education (degree, institution, field_of_study, start_date, end_date, description) VALUES
-('Bachelor of Science', 'Makerere University', 'Computer Science', '2016-09-01', '2020-06-30', 'Focused on web development and software engineering'); 
+INSERT IGNORE INTO education (degree, institution, location, start_date, end_date, description) VALUES
+('Bachelor of Science in Computer Science', 'University of Technology', 'London, UK', '2018-09-01', '2022-06-30', 'Graduated with First Class Honours. Specialized in Software Engineering and Artificial Intelligence.'),
+('Web Development Bootcamp', 'Code Academy', 'Manchester, UK', '2022-07-01', '2022-12-31', 'Intensive 6-month program covering modern web development technologies and best practices.'); 

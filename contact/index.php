@@ -42,28 +42,92 @@
             <!-- Contact Form -->
             <div class="bg-white rounded-lg shadow-lg p-8">
                 <h2 class="text-3xl font-bold mb-6">Send a Message</h2>
-                <form class="space-y-6">
+                
+                <?php
+                // Handle form submission
+                if ($_SERVER["REQUEST_METHOD"] == "POST") {
+                    require_once '../inc/config.php';
+                    
+                    // Get form data
+                    $first_name = sanitize_input($_POST['first_name'] ?? '');
+                    $last_name = sanitize_input($_POST['last_name'] ?? '');
+                    $email = sanitize_input($_POST['email'] ?? '');
+                    $subject = sanitize_input($_POST['subject'] ?? '');
+                    $message = sanitize_input($_POST['message'] ?? '');
+                    
+                    // Validate form data
+                    $errors = [];
+                    
+                    if (empty($first_name)) {
+                        $errors[] = "First name is required";
+                    }
+                    
+                    if (empty($last_name)) {
+                        $errors[] = "Last name is required";
+                    }
+                    
+                    if (empty($email)) {
+                        $errors[] = "Email is required";
+                    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                        $errors[] = "Invalid email format";
+                    }
+                    
+                    if (empty($subject)) {
+                        $errors[] = "Subject is required";
+                    }
+                    
+                    if (empty($message)) {
+                        $errors[] = "Message is required";
+                    }
+                    
+                    // If no errors, save to database
+                    if (empty($errors)) {
+                        if (save_contact_message($first_name, $last_name, $email, $subject, $message)) {
+                            echo '<div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">';
+                            echo 'Your message has been sent successfully! We will get back to you soon.';
+                            echo '</div>';
+                            
+                            // Clear form data
+                            $first_name = $last_name = $email = $subject = $message = '';
+                        } else {
+                            echo '<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">';
+                            echo 'There was an error sending your message. Please try again later.';
+                            echo '</div>';
+                        }
+                    } else {
+                        echo '<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">';
+                        echo '<ul class="list-disc list-inside">';
+                        foreach ($errors as $error) {
+                            echo '<li>' . $error . '</li>';
+                        }
+                        echo '</ul>';
+                        echo '</div>';
+                    }
+                }
+                ?>
+                
+                <form method="POST" class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-gray-700 font-semibold mb-2">First Name</label>
-                            <input type="text" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors" placeholder="John">
+                            <input type="text" name="first_name" value="<?php echo $first_name ?? ''; ?>" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors" placeholder="John">
                         </div>
                         <div>
                             <label class="block text-gray-700 font-semibold mb-2">Last Name</label>
-                            <input type="text" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors" placeholder="Doe">
+                            <input type="text" name="last_name" value="<?php echo $last_name ?? ''; ?>" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors" placeholder="Doe">
                         </div>
                     </div>
                     <div>
                         <label class="block text-gray-700 font-semibold mb-2">Email</label>
-                        <input type="email" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors" placeholder="john@example.com">
+                        <input type="email" name="email" value="<?php echo $email ?? ''; ?>" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors" placeholder="john@example.com">
                     </div>
                     <div>
                         <label class="block text-gray-700 font-semibold mb-2">Subject</label>
-                        <input type="text" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors" placeholder="Project Inquiry">
+                        <input type="text" name="subject" value="<?php echo $subject ?? ''; ?>" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors" placeholder="Project Inquiry">
                     </div>
                     <div>
                         <label class="block text-gray-700 font-semibold mb-2">Message</label>
-                        <textarea class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors h-32" placeholder="Your message here..."></textarea>
+                        <textarea name="message" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors h-32" placeholder="Your message here..."><?php echo $message ?? ''; ?></textarea>
                     </div>
                     <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-blue-500 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-blue-600 transition-colors transform hover:scale-105">
                         Send Message

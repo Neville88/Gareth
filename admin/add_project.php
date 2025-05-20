@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Insert project
         $stmt = $pdo->prepare("
-            INSERT INTO projects (title, description, image_url, live_url, github_url, featured)
+            INSERT INTO projects (title, description, image_url, project_url, github_url, featured)
             VALUES (?, ?, ?, ?, ?, ?)
         ");
         $stmt->execute([$title, $description, $image_url, $live_url, $github_url, $featured]);
